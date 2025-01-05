@@ -1,88 +1,58 @@
-class File:
-    className = 'File'
-    objectsCount = 0
+class Employee:
+    def __init__(self, hours_worked, rate, bonus_coefficient):
+        if hours_worked < 0 or rate < 0 or bonus_coefficient < 0:
+            raise ValueError("All values must be non-negative.")
+        self.hours_worked = hours_worked
+        self.rate = rate
+        self.bonus_coefficient = bonus_coefficient
 
-    def __init__(self, name, kbs, type):
-        self._name = name
-        self._kbs = kbs
-        self._type = type
-        File.objectsCount = File.objectsCount + 1
+    def calculate_bonus(self):
+        return self.hours_worked * self.rate * self.bonus_coefficient
 
-    def get_name(self):
-        return self._name
-
-    def set_name(self, n):
-        self._name = n
-
-    def get_kbs(self):
-        return self._kbs
-
-    def set_kbs(self, kbs):
-        if kbs > 0:
-            self._kbs = kbs
-        else:
-            self._kbs = 0.1
-
-    def type(self):
-        return self._type
-
-    def info(self):
-        print(self._name)
-        print(f"Размер: {self._kbs} кб")
-        print(f'Формат: {self._type}')
-
-    def kbsToBytes(self):
-        print(f'Размер в байтах: {self._kbs * 1024}')
+    def salary_per_hour(self):
+        if self.hours_worked == 0:
+            return 0 
+        return (self.hours_worked * self.rate + self.calculate_bonus()) / self.hours_worked
 
 
-class Image(File):
-    className = 'Image'
+class SeniorEmployee(Employee):
 
-    def __init__(self, name, kbs, type, height, width):
-        super().__init__(name, kbs, type)
-        self.height = height
-        self.width = width
-
-    def set_height(self, height):
-        if height > 0:
-            self.height = height
-        else:
-            self.height = 1
-
-    def set_width(self, width):
-        if width > 0:
-            self.width = width
-        else:
-            self.width = 1
-
-    def info(self):
-        super().info()
-        print(f'Тип: {Image.className}')
-        print(f"Высота (пкс): {self.height}")
-        print(f'Ширина (пкс): {self.width}')
-
-    def amount(self):
-        print(f'Площадь в пикселях: {self.height * self.width}')
-
-    def __eq__(self, other):
-        return self.height == other.height and self.width == other.width
+    def __init__(self, hours_worked, rate, bonus_coefficient, seniority_years):
+        super().__init__(hours_worked, rate, bonus_coefficient)
+        self.seniority_years = seniority_years
 
 
-b = File("Объект класса " + File.className, 11, 'TXT')
-b.info()
-b.kbsToBytes()
+    def calculate_bonus(self):
+        return super().calculate_bonus() * (1 + self.seniority_years * 0.05)
 
-print('\n')
 
-im = Image('background.jpg', 44.1, 'JPG', 800, 600)
-im2 = Image('new_background.jpg', 42.8, 'JPG', 800, 600)
+class Director(Employee):
 
-im.amount()
-im.kbsToBytes()
+    def __init__(self, hours_worked, rate, bonus_coefficient, department_size):
+        super().__init__(hours_worked, rate, bonus_coefficient)
+        self.department_size = department_size 
 
-if (im == im2) is True:
-    print(f'{im.get_name()} и {im2.get_name()} равны.')
-else:
-    print(f'{im.get_name()} и {im2.get_name()} не равны.')
+    def calculate_bonus(self):
+        return super().calculate_bonus() * (1 + self.department_size * 0.01) 
 
-print(f'Objects count: {File.objectsCount}')
+
+    def salary_per_hour(self):
+      base_salary = self.hours_worked * self.rate
+      total_bonus = self.calculate_bonus()
+      return (base_salary + total_bonus) / self.hours_worked if self.hours_worked >0 else 0
+
+
+employee = Employee(160, 100, 0.1)
+print(f"Зарплата сотрудника: {employee.hours_worked * employee.rate + employee.calculate_bonus()}")
+print(f"Премия сотрудника: {employee.calculate_bonus()}")
+print(f"Соотношение зарплата/час сотрудника: {employee.salary_per_hour()}")
+
+senior_employee = SeniorEmployee(176, 120, 0.15, 5) 
+print(f"Зарплата старшего сотрудника: {senior_employee.hours_worked * senior_employee.rate + senior_employee.calculate_bonus()}")
+print(f"Премия старшего сотрудника: {senior_employee.calculate_bonus()}")
+print(f"Соотношение зарплата/час старшего сотрудника: {senior_employee.salary_per_hour()}")
+
+director = Director(160, 200, 0.2, 10)
+print(f"Зарплата директора: {director.hours_worked * director.rate + director.calculate_bonus()}")
+print(f"Премия директора: {director.calculate_bonus()}")
+print(f"Соотношение зарплата/час директора: {director.salary_per_hour()}")
